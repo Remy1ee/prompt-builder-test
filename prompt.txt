@@ -1,0 +1,53 @@
+# 背景
+	你是一个专业且多语言的数据差异提取师， 我会给你一份TableData_JA（日文的表数据内容）和另一份TableData_US（英文的表数据内容）， 你需要将两份不同语言字段的数据进行比较，得出差异结果。
+
+# 数据资料
+## TableData_JA(CSV)
+```csv
+請求年月, 請求群ID, B#, S#, 料金項目ID, 料金分類コ一ド, 請求計算期間（FROM）, 請求計算期間(TO), 金額, 表示方法コ一ド, パケット数, 定額段階位置
+202505,30,B#1-2-1,S#1-2-1,400GJ119,400010,2025/5/1,2025/5/26,5500,08,10,0
+202505,30,B#1-2-1,S#1-2-1,03TL2001,03T200,2025/5/1,2025/5/31,3000,09,1500,2
+202505,30,B#1-2-1,S#1-2-2,400GJ115,400010,2025/5/1,2025/5/26,6451,07,10,0
+```
+
+## TableData_US(CSV)
+```csv
+billMonth,billCycleld,billGroupld,serviceld,priceableltemld,chargeCategoryCde,msnNbr,pricePlanld,recordTypeCde,outputSortNbr,billCalcDtFrom,billCalcDtTo,serviceProviderCde,detailAmt,prorationlnd,taxTypeCde,recordDetailCde,dnDecreaselnd,pointlnd,multistepPosition,chargeGroup,cpProcessedlnd,dispTypeCde,lastUpdatedTmstmp,outOfMaelnd,contractDayNbr,packetQty
+202505,30,B000010201,100010201,400GJ119,400010,0900010201,300267,RC,75900,2025/05/01 00:00:00.000,2025/05/25 23:59:59.000,00,5500,N,OT,RO,N,Y,0,,N,08,2025/04/28 22:19:12.247,,31,10,
+202505,30,B000010201,100010201,03TL2001,03T200,0900010201,300267,RC,133500,2025/05/01 00:00:00.000,2025/05/31 23:59:59.000,00,3000,N,OT,RD,N,Y,2,,N,09,2025/04/28 22:19:12.247,,0,1500,
+202505,30,B000010201,100010202,400GJ115,400010,0900010202,300267,RC,75900,2025/05/01 00:00:00.000,2025/05/25 23:59:59.000,00,6451,Y,OT,RO,N,Y,0,,N,07,2025/04/28 22:19:12.887,,25,10,
+```
+
+	
+# 比较要点
+	1.比较方法： TableData_JA与TableData_US中的每一行数据分别进行比较。
+	2.其中B#和S#的比对方法不太一样（符号含义：#：0000, -:0）
+	3.日期类型的数据比较时，年月日一致就可以
+	4.数据字段方面： TableData_US包含TableData_JA的全部字段，只是字段名会是日文的。
+	5.TableData_JA中value的值相同即不存在差异，不用过多关注TableData_US中的冗余字段。
+	6.请忽略掉US和JA之间的金额税率问题，只要值相同，就是没有差异。
+	7.请忽略掉TableData_US比TableData_JA 多出来字段。
+	
+# 比较结果：
+	将TableData_JA中不存在差异的row，结果计为null；
+	将TableData_JA中存在差异的row，仅保留差异字段及value, 作为diff的value。
+	按TableData_JA顺序加入JSON数组中，作为最终结果进行输出。
+
+# 输出要求
+
+	输出格式: JSON
+	输出示例： [
+	  null,
+	  {
+		"problems": {
+		  "favorite_planet": "Saturn (JA) vs SSunflower (US)",
+		  "member_since": "2022-03-14 (JA) vs 2022-03-24 (US)"
+		}
+	  },
+	  {
+		"problems": {
+		  "country": "China (JA) vs Canada (US)",
+		  "age": "45 (JA) vs 40 (US)"
+		}
+	  }
+	]
